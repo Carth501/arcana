@@ -3,44 +3,28 @@ import type { MetaballSpell } from "../Classification";
 
 export const metaballSpells: MetaballSpell[] = [
 	{
-		name: "Arcane Bridge",
+		name: "Arcane Bridge", // ssytqda
 		threshold: 0.9,
 		color: "rgb(205, 49, 49)",
 		centers: [
 			{
 				position: new Matrix([
-					[1, 3],
+					[1, 8],
 					[2, 1],
 				]),
-				scale: new Matrix([
+				positive_radius: new Matrix([
+					[2, 1],
+					[5, 2],
+				]),
+				negative_radius: new Matrix([
 					[2, 4],
-					[2, 2],
-				]),
-			},
-			{
-				position: new Matrix([
-					[1, 4],
-					[2, 1],
-				]),
-				scale: new Matrix([
-					[1, 2],
-					[1, 1],
-				]),
-			},
-			{
-				position: new Matrix([
-					[1, 5],
-					[2, 1],
-				]),
-				scale: new Matrix([
-					[3, 1],
-					[3, 3],
+					[10, 3],
 				]),
 			},
 		],
 	},
 	{
-		name: "Quiet Spark", // afusH
+		name: "Quiet Spark", // syfusH
 		threshold: 0.5,
 		color: "rgb(233, 237, 28)",
 		centers: [
@@ -49,7 +33,11 @@ export const metaballSpells: MetaballSpell[] = [
 					[3, 0],
 					[0, 0],
 				]),
-				scale: new Matrix([
+				positive_radius: new Matrix([
+					[1, 2],
+					[1, 1],
+				]),
+				negative_radius: new Matrix([
 					[1, 2],
 					[1, 1],
 				]),

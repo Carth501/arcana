@@ -49,8 +49,8 @@ const adjustments = [
 		code: "a",
 		label: "Adjustment Matrix 1",
 		matrix: new Matrix([
-			[1, 0],
-			[3, 1],
+			[-2, -1],
+			[2, 1],
 		]),
 	},
 	{

@@ -6,7 +6,7 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 Spell definitions live in `src/results/ellipsoidSpells.ts` and `src/results/metaballSpells.ts`. Detection updates automatically when the matrix changes. It returns the first matching ellipsoid; only when none matches does it show all matching metaball spells.
 
-Each metaball center specifies position and scale matrices matching the state dimensions. Every scale entry must be positive and finite. For each center, the squared normalized distance is the sum of `((value - position) / scale)²` over every matrix element. Its contribution is `max(0, 1 - distance²)²`; contributions are summed and compared against the spell's positive threshold.
+Each metaball center specifies position, `positive_radius`, and `negative_radius` matrices matching the state dimensions. Both radius matrices must contain positive, finite values. For each axis, use the negative radius when the value is below the center and the positive radius otherwise. The squared normalized distance is the sum of `((value - position) / radius)²` over every matrix element. Each center contributes `max(0, 1 - distance²)²`; contributions are summed and compared against the spell's positive threshold. Equal positive and negative radii retain the previous symmetric behavior.
 
 Run the detection tests with `node --test tests/classification.test.mjs` (Node.js 24 or later).
 

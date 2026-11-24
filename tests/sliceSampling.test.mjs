@@ -16,7 +16,8 @@ const makeSpell = (name, center, color) => ({
 	centers: [
 		{
 			position: new Matrix(center),
-			scale: new Matrix(center.map((row) => row.map(() => 1))),
+			positive_radius: new Matrix(center.map((row) => row.map(() => 1))),
+			negative_radius: new Matrix(center.map((row) => row.map(() => 1))),
 		},
 	],
 });
@@ -74,6 +75,20 @@ test("holds unselected dimensions fixed and preserves overlapping spell identiti
 		[0, 0],
 		[4, 0],
 	]);
+});
+
+test("slice sampling shows asymmetric radii on the selected axis", () => {
+	const matrix = new Matrix([
+		[0, 0],
+		[0, 0],
+	]);
+	const spell = makeSpell("asymmetric", matrix.to2DArray(), "red");
+	spell.threshold = 0.5625;
+	spell.centers[0].positive_radius.set(0, 0, 2);
+	const samples = sampleSlice(matrix, 0, 1, [spell], []);
+	assert.deepEqual(samples[86].matches, [spell]);
+	assert.deepEqual(samples[83].matches, [spell]);
+	assert.deepEqual(samples[82].matches, []);
 });
 
 test("projected origin is visible on the boundary of the square", () => {
@@ -156,6 +171,6 @@ test("overlapping colors get equal weights", () => {
 
 test("invalid metaball definitions remain explicit errors", () => {
 	const invalid = makeSpell("invalid", [[0, 0]], "red");
-	invalid.centers[0].scale.set(0, 0, 0);
+	invalid.centers[0].positive_radius.set(0, 0, 0);
 	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 1, [invalid], []), RangeError);
 });

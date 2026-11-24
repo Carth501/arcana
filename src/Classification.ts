@@ -9,7 +9,8 @@ interface Spell {
 
 interface MetaballCenter {
 	position: Matrix;
-	scale: Matrix;
+	positive_radius: Matrix;
+	negative_radius: Matrix;
 }
 
 interface MetaballSpell {
@@ -63,12 +64,14 @@ function detectMetaballSpells(
 		}
 
 		let field = 0;
-		for (const { position, scale } of spell.centers) {
+		for (const { position, positive_radius, negative_radius } of spell.centers) {
 			if (
 				position.rows !== matrix.rows ||
 				position.columns !== matrix.columns ||
-				scale.rows !== matrix.rows ||
-				scale.columns !== matrix.columns
+				positive_radius.rows !== matrix.rows ||
+				positive_radius.columns !== matrix.columns ||
+				negative_radius.rows !== matrix.rows ||
+				negative_radius.columns !== matrix.columns
 			) {
 				throw new RangeError(
 					`Metaball spell "${spell.name}" matrices must match the input dimensions`,
@@ -80,18 +83,26 @@ function detectMetaballSpells(
 				for (let column = 0; column < matrix.columns; column++) {
 					const value = matrix.get(row, column);
 					const center = position.get(row, column);
-					const radius = scale.get(row, column);
+					const positiveRadius = positive_radius.get(row, column);
+					const negativeRadius = negative_radius.get(row, column);
 					if (!Number.isFinite(value) || !Number.isFinite(center)) {
 						throw new RangeError(
 							`Metaball spell "${spell.name}" requires finite coordinates`,
 						);
 					}
-					if (!Number.isFinite(radius) || radius <= 0) {
+					if (
+						!Number.isFinite(positiveRadius) ||
+						positiveRadius <= 0 ||
+						!Number.isFinite(negativeRadius) ||
+						negativeRadius <= 0
+					) {
 						throw new RangeError(
 							`Metaball spell "${spell.name}" requires positive finite radii`,
 						);
 					}
-					distanceSquared += ((value - center) / radius) ** 2;
+					const difference = value - center;
+					const radius = difference < 0 ? negativeRadius : positiveRadius;
+					distanceSquared += (difference / radius) ** 2;
 				}
 			}
 			field += Math.max(0, 1 - distanceSquared) ** 2;
