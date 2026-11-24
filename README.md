@@ -12,7 +12,7 @@ Run the detection tests with `node --test tests/classification.test.mjs` (Node.j
 
 ## Spell slice visualizer
 
-Select two distinct matrix entries to view a two-axis slice centered on the current state; all other entries remain fixed. The plot samples a square from −3 to +3 on each axis at 0.5-unit intervals. Each cell shows all matching ellipsoid and metaball spells, blending their colors equally where they overlap. Both types of spell must define a valid CSS color. Unlike Check Spell, the visualizer shows every matching region without applying ellipsoid priority.
+Click matrix entries to choose the slice axes: horizontal is red and vertical is blue. New selections alternate between horizontal and vertical; clicking either selected entry swaps the axes. All other entries remain fixed. The plot samples a square from −3 to +3 on each axis at 0.5-unit intervals. Each cell shows all matching ellipsoid and metaball spells, blending their colors equally where they overlap. Both types of spell must define a valid CSS color. Unlike Check Spell, the visualizer shows every matching region without applying ellipsoid priority.
 
 The white ring marks the current position. The black cross marks the selected axes' projected origin when visible; this is not necessarily the full matrix origin. This is a sampled approximation, so small regions between samples may be missed.
 

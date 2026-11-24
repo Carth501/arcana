@@ -6,6 +6,7 @@ import {
 	isProjectedOriginVisible,
 	resolveAxes,
 	sampleSlice,
+	selectAxis,
 } from "../src/sliceSampling.ts";
 
 const makeSpell = (name, center, color) => ({
@@ -88,6 +89,22 @@ test("axis choices remain distinct and in bounds as dimensions change", () => {
 	assert.equal(resolveAxes(1, 0, 1), null);
 	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 0, [], []), RangeError);
 	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 2, [], []), RangeError);
+});
+
+test("matrix clicks alternate axis assignment and selected cells swap axes", () => {
+	let selection = { x: 0, y: 1, next: "horizontal" };
+	selection = selectAxis(4, selection, 2);
+	assert.deepEqual(selection, { x: 2, y: 1, next: "vertical" });
+	selection = selectAxis(4, selection, 3);
+	assert.deepEqual(selection, { x: 2, y: 3, next: "horizontal" });
+	selection = selectAxis(4, selection, 3);
+	assert.deepEqual(selection, { x: 3, y: 2, next: "horizontal" });
+	selection = selectAxis(4, selection, 3);
+	assert.deepEqual(selection, { x: 2, y: 3, next: "horizontal" });
+	selection = selectAxis(2, selection, 1);
+	assert.deepEqual(selection, { x: 1, y: 0, next: "horizontal" });
+	assert.throws(() => selectAxis(1, selection, 0), RangeError);
+	assert.throws(() => selectAxis(4, selection, 4), RangeError);
 });
 
 test("samples all matching ellipsoids and metaballs, including overlapping colors", () => {

@@ -202,17 +202,34 @@ td {
 	box-sizing: border-box;
 }
 
-.slice-controls {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	gap: 1rem;
-	margin: 1rem 0;
+.matrix-table td {
+	padding: 0;
 }
 
-.slice-controls label {
-	display: flex;
-	flex-direction: column;
+.matrix-axis {
+	width: 100%;
+	min-width: 40px;
+	padding: 8px 12px;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+.matrix-axis--horizontal {
+	background: #b91c1c;
+	color: white;
+}
+
+.matrix-axis--vertical {
+	background: #1d4ed8;
+	color: white;
+}
+
+.matrix-axis:focus-visible {
+	outline: 3px solid var(--accent);
+	outline-offset: -3px;
 }
 
 .slice-plot {

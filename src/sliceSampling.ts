@@ -15,12 +15,32 @@ interface SliceSample {
 	matches: (Spell | MetaballSpell)[];
 }
 
+interface AxisSelection {
+	x: number;
+	y: number;
+	next: "horizontal" | "vertical";
+}
+
 function resolveAxes(count: number, x: number, y: number): [number, number] | null {
 	if (count < 2) return null;
 	const xAxis = Number.isInteger(x) && x >= 0 && x < count ? x : 0;
 	const yAxis =
 		Number.isInteger(y) && y >= 0 && y < count && y !== xAxis ? y : xAxis === 0 ? 1 : 0;
 	return [xAxis, yAxis];
+}
+
+function selectAxis(count: number, selection: AxisSelection, index: number): AxisSelection {
+	const axes = resolveAxes(count, selection.x, selection.y);
+	if (!axes || !Number.isInteger(index) || index < 0 || index >= count) {
+		throw new RangeError("Axis selection requires a valid matrix with at least two entries");
+	}
+	const [x, y] = axes;
+	if (index === x || index === y) {
+		return { x: y, y: x, next: selection.next };
+	}
+	return selection.next === "horizontal"
+		? { x: index, y, next: "vertical" }
+		: { x, y: index, next: "horizontal" };
 }
 
 function sampleSlice(
@@ -88,5 +108,5 @@ function blendColors(colors: string[]): string {
 		);
 }
 
-export { blendColors, isProjectedOriginVisible, resolveAxes, sampleSlice };
-export type { SliceSample };
+export { blendColors, isProjectedOriginVisible, resolveAxes, sampleSlice, selectAxis };
+export type { AxisSelection, SliceSample };

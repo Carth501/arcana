@@ -1,23 +1,21 @@
-import { useId, useState } from "react";
+import { useId } from "react";
 import type { Matrix } from "ml-matrix";
 import type { MetaballSpell, Spell } from "./Classification";
-import { blendColors, isProjectedOriginVisible, resolveAxes, sampleSlice } from "./sliceSampling";
+import { blendColors, isProjectedOriginVisible, sampleSlice } from "./sliceSampling";
 
 interface SliceVisualizerProps {
 	matrix: Matrix;
 	spells: MetaballSpell[];
 	ellipsoidSpells: Spell[];
+	axes: [number, number] | null;
 }
 
 const PLOT_START = 50;
 const PLOT_SIZE = 300;
 const UNITS_TO_PIXELS = PLOT_SIZE / 6;
 
-function SliceVisualizer({ matrix, spells, ellipsoidSpells }: SliceVisualizerProps) {
-	const [selectedX, setSelectedX] = useState(0);
-	const [selectedY, setSelectedY] = useState(1);
+function SliceVisualizer({ matrix, spells, ellipsoidSpells, axes }: SliceVisualizerProps) {
 	const clipId = useId();
-	const axes = resolveAxes(matrix.rows * matrix.columns, selectedX, selectedY);
 
 	if (axes === null) {
 		return (
@@ -61,34 +59,9 @@ function SliceVisualizer({ matrix, spells, ellipsoidSpells }: SliceVisualizerPro
 	return (
 		<section className="slice-visualizer" aria-labelledby={`${clipId}-title`}>
 			<h2 id={`${clipId}-title`}>Spell slice</h2>
-			<div className="slice-controls">
-				<label>
-					Horizontal axis
-					<select
-						value={xAxis}
-						onChange={(event) => setSelectedX(Number(event.target.value))}
-					>
-						{Array.from({ length: matrix.rows * matrix.columns }, (_, index) => (
-							<option key={index} value={index} disabled={index === yAxis}>
-								{axisLabel(index)}
-							</option>
-						))}
-					</select>
-				</label>
-				<label>
-					Vertical axis
-					<select
-						value={yAxis}
-						onChange={(event) => setSelectedY(Number(event.target.value))}
-					>
-						{Array.from({ length: matrix.rows * matrix.columns }, (_, index) => (
-							<option key={index} value={index} disabled={index === xAxis}>
-								{axisLabel(index)}
-							</option>
-						))}
-					</select>
-				</label>
-			</div>
+			<p>
+				Horizontal (red): {axisLabel(xAxis)}. Vertical (blue): {axisLabel(yAxis)}.
+			</p>
 			<p>
 				Other matrix entries stay fixed. Each cell represents a sample; boundaries are
 				approximate.

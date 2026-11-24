@@ -10,11 +10,22 @@ import { detectSpells } from "./Classification";
 import { ellipsoidSpells } from "./results/ellipsoidSpells";
 import { metaballSpells } from "./results/metaballSpells";
 import { SliceVisualizer } from "./SliceVisualizer";
+import { resolveAxes, selectAxis, type AxisSelection } from "./sliceSampling";
 
 function App() {
 	const [arcaneState, setArcaneState] = useState(() => new Matrix(2, 2));
 	const [previousState, setPreviousState] = useState<Matrix[]>([]);
 	const [detectedSpells, setDetectedSpells] = useState<string[]>([]);
+	const [axisSelection, setAxisSelection] = useState<AxisSelection>({
+		x: 0,
+		y: 1,
+		next: "horizontal",
+	});
+	const axes = resolveAxes(
+		arcaneState.rows * arcaneState.columns,
+		axisSelection.x,
+		axisSelection.y,
+	);
 
 	const reset = () => {
 		setPreviousState((prev) => [...prev, arcaneState]);
@@ -89,13 +100,36 @@ function App() {
 
 	return (
 		<>
-			<table>
+			<p>
+				Click a matrix entry to select an axis. New selections alternate between
+				horizontal (red) and vertical (blue); click a selected entry to swap axes.
+				{axes && ` Next new selection: ${axisSelection.next}.`}
+			</p>
+			<table className="matrix-table">
 				<tbody>
 					{arcaneState.to2DArray().map((row, i) => (
 						<tr key={i}>
-							{row.map((value, j) => (
-								<td key={j}>{value.toFixed(2)}</td>
-							))}
+							{row.map((value, j) => {
+								const index = i * arcaneState.columns + j;
+								const selectedAxis =
+									index === axes?.[0] ? "horizontal" : index === axes?.[1] ? "vertical" : null;
+								return (
+									<td key={j}>
+										<button
+											type="button"
+											className={`matrix-axis${selectedAxis ? ` matrix-axis--${selectedAxis}` : ""}`}
+											aria-label={`Row ${i + 1}, column ${j + 1}: ${value.toFixed(2)}${selectedAxis ? `, ${selectedAxis} axis selected; click to swap axes` : `, click to select ${axisSelection.next} axis`}`}
+											aria-pressed={selectedAxis !== null}
+											disabled={!axes}
+											onClick={() => setAxisSelection((current) =>
+												selectAxis(arcaneState.rows * arcaneState.columns, current, index)
+											)}
+										>
+											{value.toFixed(2)}
+										</button>
+									</td>
+								);
+							})}
 						</tr>
 					))}
 				</tbody>
@@ -161,6 +195,7 @@ function App() {
 				matrix={arcaneState}
 				spells={metaballSpells}
 				ellipsoidSpells={ellipsoidSpells}
+				axes={axes}
 			/>
 		</>
 	);
