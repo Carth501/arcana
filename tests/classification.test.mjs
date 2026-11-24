@@ -13,7 +13,9 @@ const center = (x, y = 0, xRadius = 1, yRadius = 1) => ({
 });
 
 test("metaball falloff respects center, anisotropic radii, and boundary", () => {
-	const spells = [{ name: "bubble", centers: [center(0, 0, 2, 1)], threshold: 0.5625 }];
+	const spells = [
+		{ name: "bubble", color: "red", centers: [center(0, 0, 2, 1)], threshold: 0.5625 },
+	];
 	assert.deepEqual(detectMetaballSpells(point(0), spells), ["bubble"]);
 	assert.deepEqual(detectMetaballSpells(point(1), spells), ["bubble"]);
 	assert.deepEqual(detectMetaballSpells(point(0, 0.51), spells), []);
@@ -23,9 +25,14 @@ test("metaball falloff respects center, anisotropic radii, and boundary", () => 
 
 test("overlapping centers combine and all matching spells are returned in order", () => {
 	const spells = [
-		{ name: "bridge", centers: [center(-1, 0, 2), center(1, 0, 2)], threshold: 1.1 },
-		{ name: "second", centers: [center(0)], threshold: 1 },
-		{ name: "no match", centers: [center(4)], threshold: 0.5 },
+		{
+			name: "bridge",
+			color: "red",
+			centers: [center(-1, 0, 2), center(1, 0, 2)],
+			threshold: 1.1,
+		},
+		{ name: "second", color: "blue", centers: [center(0)], threshold: 1 },
+		{ name: "no match", color: "green", centers: [center(4)], threshold: 0.5 },
 	];
 	assert.deepEqual(detectMetaballSpells(point(0), spells), ["bridge", "second"]);
 });
@@ -35,7 +42,7 @@ test("ellipsoid results take priority; fallback returns all matches or none", ()
 		{ name: "first", position: point(0), scale: point(1, 1) },
 		{ name: "second", position: point(0), scale: point(1, 1) },
 	];
-	const fallback = [{ name: "fallback", centers: [center(0)], threshold: 0.5 }];
+	const fallback = [{ name: "fallback", color: "red", centers: [center(0)], threshold: 0.5 }];
 	assert.deepEqual(detectSpells(point(0), ellipsoids, fallback), ["first"]);
 	assert.deepEqual(detectSpells(point(0), ellipsoids, [{ ...fallback[0], threshold: 0 }]), [
 		"first",
@@ -59,7 +66,7 @@ test("example definitions yield overlapping fallback matches at the origin", () 
 });
 
 test("invalid metaball definitions and coordinates fail explicitly", () => {
-	const valid = { name: "test", centers: [center(0)], threshold: 0.5 };
+	const valid = { name: "test", color: "red", centers: [center(0)], threshold: 0.5 };
 	assert.throws(() => detectMetaballSpells(point(0), [{ ...valid, threshold: 0 }]), RangeError);
 	assert.throws(
 		() => detectMetaballSpells(point(0), [{ ...valid, threshold: Infinity }]),

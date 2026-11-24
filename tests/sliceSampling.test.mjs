@@ -6,7 +6,6 @@ import {
 	isProjectedOriginVisible,
 	resolveAxes,
 	sampleSlice,
-	spellColor,
 } from "../src/sliceSampling.ts";
 
 const makeSpell = (name, center, color) => ({
@@ -91,8 +90,7 @@ test("axis choices remain distinct and in bounds as dimensions change", () => {
 	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 2, []), RangeError);
 });
 
-test("spell colors have a fallback and overlapping colors get equal weights", () => {
-	assert.equal(spellColor(makeSpell("default", [[0]], undefined)), "#808080");
+test("overlapping colors get equal weights", () => {
 	assert.equal(blendColors([]), "var(--code-bg)");
 	assert.equal(blendColors(["red"]), "red");
 	assert.equal(blendColors(["red", "blue"]), "color-mix(in srgb, red 50%, blue)");

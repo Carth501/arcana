@@ -12,7 +12,7 @@ Run the detection tests with `node --test tests/classification.test.mjs` (Node.j
 
 ## Metaball slice visualizer
 
-Select two distinct matrix entries to view a two-axis slice centered on the current state; all other entries remain fixed. The plot samples a square from −3 to +3 on each axis at 0.5-unit intervals. Each cell shows the spell or equally blended spell colors at its sampled coordinate; the legend uses a gray fallback for spells without a color. Ellipsoid spells are not shown.
+Select two distinct matrix entries to view a two-axis slice centered on the current state; all other entries remain fixed. The plot samples a square from −3 to +3 on each axis at 0.5-unit intervals. Each cell shows the spell or equally blended spell colors at its sampled coordinate. Metaball spells must define a valid CSS color; ellipsoid spells are not shown.
 
 The white ring marks the current position. The black cross marks the selected axes' projected origin when visible; this is not necessarily the full matrix origin. This is a sampled approximation, so small regions between samples may be missed.
 

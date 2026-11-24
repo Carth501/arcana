@@ -1,13 +1,7 @@
 import { useId, useState } from "react";
 import type { Matrix } from "ml-matrix";
 import type { MetaballSpell } from "./Classification";
-import {
-	blendColors,
-	isProjectedOriginVisible,
-	resolveAxes,
-	sampleSlice,
-	spellColor,
-} from "./sliceSampling";
+import { blendColors, isProjectedOriginVisible, resolveAxes, sampleSlice } from "./sliceSampling";
 
 interface SliceVisualizerProps {
 	matrix: Matrix;
@@ -39,7 +33,7 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 	const currentX = matrix.get(Math.floor(xAxis / matrix.columns), xAxis % matrix.columns);
 	const currentY = matrix.get(Math.floor(yAxis / matrix.columns), yAxis % matrix.columns);
 	const invalidColors = spells.filter(
-		(spell) => !CSS.supports("color", `color-mix(in srgb, ${spellColor(spell)}, black)`),
+		(spell) => !CSS.supports("color", `color-mix(in srgb, ${spell.color}, black)`),
 	);
 
 	if (invalidColors.length) {
@@ -116,7 +110,7 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 							y={toY(sample.y) - 12.5}
 							width="25"
 							height="25"
-							fill={blendColors(sample.matches.map(spellColor))}
+							fill={blendColors(sample.matches.map((spell) => spell.color))}
 							className="slice-cell"
 						>
 							<title>{`(${sample.x}, ${sample.y}): ${sample.matches.length ? sample.matches.map((spell) => spell.name).join(", ") : "No spell"}`}</title>
@@ -159,7 +153,7 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 					<li key={index}>
 						<span
 							className="slice-swatch"
-							style={{ backgroundColor: spellColor(spell) }}
+							style={{ backgroundColor: spell.color }}
 							aria-hidden="true"
 						/>
 						{spell.name}

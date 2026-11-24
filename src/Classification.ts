@@ -13,7 +13,7 @@ interface MetaballCenter {
 
 interface MetaballSpell {
 	name: string;
-	color?: string;
+	color: string;
 	centers: MetaballCenter[];
 	threshold: number;
 }

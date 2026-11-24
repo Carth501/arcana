@@ -3,7 +3,6 @@ import { detectMetaballSpells, type MetaballSpell } from "./Classification.ts";
 
 const SLICE_RADIUS = 3;
 const SAMPLE_STEP = 0.5;
-const FALLBACK_COLOR = "#808080";
 
 interface SliceSample {
 	x: number;
@@ -69,10 +68,6 @@ function isProjectedOriginVisible(x: number, y: number): boolean {
 	return Math.abs(x) <= SLICE_RADIUS && Math.abs(y) <= SLICE_RADIUS;
 }
 
-function spellColor(spell: MetaballSpell): string {
-	return spell.color === undefined ? FALLBACK_COLOR : spell.color;
-}
-
 function blendColors(colors: string[]): string {
 	if (colors.length === 0) return "var(--code-bg)";
 	return colors
@@ -84,5 +79,5 @@ function blendColors(colors: string[]): string {
 		);
 }
 
-export { blendColors, isProjectedOriginVisible, resolveAxes, sampleSlice, spellColor };
+export { blendColors, isProjectedOriginVisible, resolveAxes, sampleSlice };
 export type { SliceSample };
