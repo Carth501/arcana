@@ -1,4 +1,9 @@
-import { determinant, EigenvalueDecomposition, inverse, Matrix } from "ml-matrix";
+import {
+	determinant,
+	EigenvalueDecomposition,
+	inverse,
+	Matrix,
+} from "ml-matrix";
 import { useState } from "react";
 import "./App.css";
 import { detectSpells } from "./Classification";
@@ -17,7 +22,9 @@ function App() {
 	};
 
 	const checkSpell = () => {
-		setDetectedSpells(detectSpells(arcaneState, ellipsoidSpells, metaballSpells));
+		setDetectedSpells(
+			detectSpells(arcaneState, ellipsoidSpells, metaballSpells),
+		);
 	};
 	// add 2 to each element of the matrix
 	const transform1 = () => {
@@ -48,6 +55,27 @@ function App() {
 	const transform7 = () => {
 		setPreviousState((prev) => [...prev, arcaneState]);
 		setArcaneState(inverse(arcaneState));
+	};
+	const adjustmentMatricies = [
+		new Matrix([
+			[1, 0],
+			[0, 1],
+		]),
+		new Matrix([
+			[3, 1],
+			[1, 0],
+		]),
+		new Matrix([
+			[-1, -1],
+			[-1, -1],
+		]),
+	];
+	const [adjustmentMatrix, setAdjustmentMatrix] = useState(
+		adjustmentMatricies[0],
+	);
+	const transform8 = (matrixToAdd: Matrix) => {
+		setPreviousState((prev) => [...prev, arcaneState]);
+		setArcaneState(arcaneState.clone().add(matrixToAdd));
 	};
 
 	const checkMatrixDeterminant = () => {
@@ -81,13 +109,38 @@ function App() {
 					.map((val) => val.toFixed(2))
 					.join(", ")}
 			</p>
-			<p>Detected Spell: {detectedSpells.length ? detectedSpells.join(", ") : "None"}</p>
+			<p>
+				Detected Spell:{" "}
+				{detectedSpells.length ? detectedSpells.join(", ") : "None"}
+			</p>
 
 			<button onClick={reset}>Reset</button>
 			<button onClick={transform1}>Add 2</button>
 			<button onClick={transform2}>Multiply by 2</button>
-			<button onClick={transform3}>Subtract 2 from first element of each column</button>
-			<button onClick={transform4}>Multiply first row by 0.5 and second row by 1.2</button>
+			<button onClick={() => transform8(adjustmentMatrix)}>
+				Add Adjustment Matrix
+			</button>
+			{/*Select adjustment matrix to add*/}
+			<select
+				onChange={(e) => {
+					const index = parseInt(e.target.value, 10);
+					if (!isNaN(index)) {
+						setAdjustmentMatrix(adjustmentMatricies[index]);
+					}
+				}}
+			>
+				{adjustmentMatricies.map((matrix, index) => (
+					<option key={index} value={index}>
+						Adjustment Matrix {index + 1}
+					</option>
+				))}
+			</select>
+			<button onClick={transform3}>
+				Subtract 2 from first element of each column
+			</button>
+			<button onClick={transform4}>
+				Multiply first row by 0.5 and second row by 1.2
+			</button>
 			<button onClick={transform5}>Transpose</button>
 			<button onClick={transform6}>Swap Rows</button>
 			<button disabled={!checkMatrixDeterminant()} onClick={transform7}>
