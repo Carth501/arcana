@@ -9,18 +9,18 @@ export const metaballSpells: MetaballSpell[] = [
 		centers: [
 			{
 				position: new Matrix([
-					[1, 0],
-					[0, 0],
+					[1, 3],
+					[2, 1],
 				]),
 				scale: new Matrix([
-					[2, 1],
-					[1, 1],
+					[2, 4],
+					[2, 2],
 				]),
 			},
 			{
 				position: new Matrix([
-					[-1, 0],
-					[0, 0],
+					[-1, 4],
+					[3, 3],
 				]),
 				scale: new Matrix([
 					[2, 1],

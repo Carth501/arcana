@@ -9,8 +9,8 @@ import "./App.css";
 import { detectSpells } from "./Classification";
 import { ellipsoidSpells } from "./results/ellipsoidSpells";
 import { metaballSpells } from "./results/metaballSpells";
-import { SliceVisualizer } from "./SliceVisualizer";
 import { resolveAxes, selectAxis, type AxisSelection } from "./sliceSampling";
+import { SliceVisualizer } from "./SliceVisualizer";
 
 function App() {
 	const [arcaneState, setArcaneState] = useState(() => new Matrix(2, 2));
@@ -101,8 +101,9 @@ function App() {
 	return (
 		<>
 			<p>
-				Click a matrix entry to select an axis. New selections alternate between
-				horizontal (red) and vertical (blue); click a selected entry to swap axes.
+				Click a matrix entry to select an axis. New selections alternate
+				between horizontal (red) and vertical (blue); click a selected
+				entry to swap axes.
 				{axes && ` Next new selection: ${axisSelection.next}.`}
 			</p>
 			<table className="matrix-table">
@@ -112,7 +113,11 @@ function App() {
 							{row.map((value, j) => {
 								const index = i * arcaneState.columns + j;
 								const selectedAxis =
-									index === axes?.[0] ? "horizontal" : index === axes?.[1] ? "vertical" : null;
+									index === axes?.[0]
+										? "horizontal"
+										: index === axes?.[1]
+											? "vertical"
+											: null;
 								return (
 									<td key={j}>
 										<button
@@ -121,9 +126,16 @@ function App() {
 											aria-label={`Row ${i + 1}, column ${j + 1}: ${value.toFixed(2)}${selectedAxis ? `, ${selectedAxis} axis selected; click to swap axes` : `, click to select ${axisSelection.next} axis`}`}
 											aria-pressed={selectedAxis !== null}
 											disabled={!axes}
-											onClick={() => setAxisSelection((current) =>
-												selectAxis(arcaneState.rows * arcaneState.columns, current, index)
-											)}
+											onClick={() =>
+												setAxisSelection((current) =>
+													selectAxis(
+														arcaneState.rows *
+															arcaneState.columns,
+														current,
+														index,
+													),
+												)
+											}
 										>
 											{value.toFixed(2)}
 										</button>
@@ -150,37 +162,42 @@ function App() {
 			</p>
 
 			<button onClick={reset}>Reset</button>
-			<button onClick={transform1}>Add 2</button>
-			<button onClick={transform2}>Multiply by 2</button>
-			<button onClick={() => transform8(adjustmentMatrix)}>
-				Add Adjustment Matrix
-			</button>
-			{/*Select adjustment matrix to add*/}
-			<select
-				onChange={(e) => {
-					const index = parseInt(e.target.value, 10);
-					if (!isNaN(index)) {
-						setAdjustmentMatrix(adjustmentMatricies[index]);
-					}
-				}}
-			>
-				{adjustmentMatricies.map((matrix, index) => (
-					<option key={index} value={index}>
-						Adjustment Matrix {index + 1}
-					</option>
-				))}
-			</select>
-			<button onClick={transform3}>
-				Subtract 2 from first element of each column
-			</button>
-			<button onClick={transform4}>
-				Multiply first row by 0.5 and second row by 1.2
-			</button>
-			<button onClick={transform5}>Transpose</button>
-			<button onClick={transform6}>Swap Rows</button>
-			<button disabled={!checkMatrixDeterminant()} onClick={transform7}>
-				Inverse
-			</button>
+			<div className="transformation-grid">
+				<button onClick={transform1}>Add 2</button>
+				<button onClick={transform2}>Multiply by 2</button>
+				<button onClick={transform3}>
+					Subtract 2 from first element of each column
+				</button>
+				<button onClick={() => transform8(adjustmentMatrix)}>
+					Add Adjustment Matrix
+				</button>
+				<select
+					aria-label="Adjustment matrix"
+					onChange={(e) => {
+						const index = parseInt(e.target.value, 10);
+						if (!isNaN(index)) {
+							setAdjustmentMatrix(adjustmentMatricies[index]);
+						}
+					}}
+				>
+					{adjustmentMatricies.map((matrix, index) => (
+						<option key={index} value={index}>
+							Adjustment Matrix {index + 1}
+						</option>
+					))}
+				</select>
+				<button onClick={transform4}>
+					Multiply first row by 0.5 and second row by 1.2
+				</button>
+				<button onClick={transform5}>Transpose</button>
+				<button onClick={transform6}>Swap Rows</button>
+				<button
+					disabled={!checkMatrixDeterminant()}
+					onClick={transform7}
+				>
+					Inverse
+				</button>
+			</div>
 			<button
 				disabled={previousState.length === 0}
 				onClick={() => {
