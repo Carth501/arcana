@@ -194,3 +194,80 @@ td {
 	text-align: center;
 	min-width: 40px;
 }
+
+.slice-visualizer {
+	margin: 2rem auto;
+	padding: 0 1rem;
+	width: min(100%, 34rem);
+	box-sizing: border-box;
+}
+
+.slice-controls {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 1rem;
+	margin: 1rem 0;
+}
+
+.slice-controls label {
+	display: flex;
+	flex-direction: column;
+}
+
+.slice-plot {
+	display: block;
+	width: 100%;
+	margin: 1rem auto;
+}
+
+.slice-cell {
+	stroke: var(--border);
+	stroke-width: 0.4;
+}
+
+.slice-frame {
+	fill: none;
+	stroke: var(--text-h);
+	stroke-width: 1;
+	pointer-events: none;
+}
+
+.slice-current {
+	fill: none;
+	stroke: white;
+	stroke-width: 3;
+	filter: drop-shadow(0 0 2px black);
+	pointer-events: none;
+}
+
+.slice-origin {
+	fill: none;
+	stroke: black;
+	stroke-width: 3;
+	filter: drop-shadow(0 0 2px white);
+	pointer-events: none;
+}
+
+.slice-tick {
+	fill: var(--text-h);
+	font-size: 10px;
+}
+
+.slice-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	justify-content: center;
+	padding: 0;
+	list-style: none;
+}
+
+.slice-swatch {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	margin-right: 0.4em;
+	border: 1px solid var(--text);
+	vertical-align: middle;
+}

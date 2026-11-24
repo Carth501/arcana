@@ -5,6 +5,7 @@ export const metaballSpells: MetaballSpell[] = [
 	{
 		name: "Arcane Bridge",
 		threshold: 0.9,
+		color: "rgb(205, 49, 49)",
 		centers: [
 			{
 				position: new Matrix([
@@ -31,6 +32,7 @@ export const metaballSpells: MetaballSpell[] = [
 	{
 		name: "Quiet Spark",
 		threshold: 0.5,
+		color: "rgb(233, 237, 28)",
 		centers: [
 			{
 				position: new Matrix([

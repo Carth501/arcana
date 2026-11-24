@@ -9,6 +9,7 @@ import "./App.css";
 import { detectSpells } from "./Classification";
 import { ellipsoidSpells } from "./results/ellipsoidSpells";
 import { metaballSpells } from "./results/metaballSpells";
+import { SliceVisualizer } from "./SliceVisualizer";
 
 function App() {
 	const [arcaneState, setArcaneState] = useState(() => new Matrix(2, 2));
@@ -156,6 +157,7 @@ function App() {
 				Undo
 			</button>
 			<button onClick={checkSpell}>Check Spell</button>
+			<SliceVisualizer matrix={arcaneState} spells={metaballSpells} />
 		</>
 	);
 }

@@ -13,6 +13,7 @@ interface MetaballCenter {
 
 interface MetaballSpell {
 	name: string;
+	color?: string;
 	centers: MetaballCenter[];
 	threshold: number;
 }
@@ -42,7 +43,10 @@ function detectResult(matrix: Matrix, spells: Spell[]): string | null {
 	return null;
 }
 
-function detectMetaballSpells(matrix: Matrix, spells: MetaballSpell[]): string[] {
+function detectMetaballSpells(
+	matrix: Matrix,
+	spells: MetaballSpell[],
+): string[] {
 	const matches: string[] = [];
 
 	for (const spell of spells) {
@@ -52,7 +56,9 @@ function detectMetaballSpells(matrix: Matrix, spells: MetaballSpell[]): string[]
 			);
 		}
 		if (spell.centers.length === 0) {
-			throw new RangeError(`Metaball spell "${spell.name}" must have at least one center`);
+			throw new RangeError(
+				`Metaball spell "${spell.name}" must have at least one center`,
+			);
 		}
 
 		let field = 0;
@@ -97,10 +103,16 @@ function detectMetaballSpells(matrix: Matrix, spells: MetaballSpell[]): string[]
 	return matches;
 }
 
-function detectSpells(matrix: Matrix, spells: Spell[], metaballSpells: MetaballSpell[]): string[] {
+function detectSpells(
+	matrix: Matrix,
+	spells: Spell[],
+	metaballSpells: MetaballSpell[],
+): string[] {
 	const result = detectResult(matrix, spells);
-	return result === null ? detectMetaballSpells(matrix, metaballSpells) : [result];
+	return result === null
+		? detectMetaballSpells(matrix, metaballSpells)
+		: [result];
 }
 
-export { detectResult, detectSpell, detectMetaballSpells, detectSpells };
-export type { Spell, MetaballCenter, MetaballSpell };
+export { detectMetaballSpells, detectResult, detectSpell, detectSpells };
+export type { MetaballCenter, MetaballSpell, Spell };

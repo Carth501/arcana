@@ -10,6 +10,14 @@ Each metaball center specifies position and scale matrices matching the state di
 
 Run the detection tests with `node --test tests/classification.test.mjs` (Node.js 24 or later).
 
+## Metaball slice visualizer
+
+Select two distinct matrix entries to view a two-axis slice centered on the current state; all other entries remain fixed. The plot samples a square from −3 to +3 on each axis at 0.5-unit intervals. Each cell shows the spell or equally blended spell colors at its sampled coordinate; the legend uses a gray fallback for spells without a color. Ellipsoid spells are not shown.
+
+The white ring marks the current position. The black cross marks the selected axes' projected origin when visible; this is not necessarily the full matrix origin. This is a sampled approximation, so small regions between samples may be missed.
+
+Run the slice tests with `node --test tests/sliceSampling.test.mjs`.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
