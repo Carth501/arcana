@@ -19,12 +19,22 @@ export const metaballSpells: MetaballSpell[] = [
 			},
 			{
 				position: new Matrix([
-					[-1, 4],
-					[3, 3],
+					[1, 4],
+					[2, 1],
 				]),
 				scale: new Matrix([
-					[2, 1],
+					[1, 2],
 					[1, 1],
+				]),
+			},
+			{
+				position: new Matrix([
+					[1, 5],
+					[2, 1],
+				]),
+				scale: new Matrix([
+					[3, 1],
+					[3, 3],
 				]),
 			},
 		],
