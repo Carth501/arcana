@@ -1,21 +1,22 @@
-import {
-	determinant,
-	EigenvalueDecomposition,
-	inverse,
-	Matrix,
-} from "ml-matrix";
-import { useState } from "react";
+import { determinant, EigenvalueDecomposition } from "ml-matrix";
+import { useMemo, useState } from "react";
 import "./App.css";
 import { detectSpells } from "./Classification";
+import { adjustments, canInvert, replayInstructions, transformations } from "./instructions";
 import { ellipsoidSpells } from "./results/ellipsoidSpells";
 import { metaballSpells } from "./results/metaballSpells";
 import { resolveAxes, selectAxis, type AxisSelection } from "./sliceSampling";
 import { SliceVisualizer } from "./SliceVisualizer";
 
 function App() {
-	const [arcaneState, setArcaneState] = useState(() => new Matrix(2, 2));
-	const [previousState, setPreviousState] = useState<Matrix[]>([]);
-	const [detectedSpells, setDetectedSpells] = useState<string[]>([]);
+	const [sequence, setSequence] = useState("");
+	const [adjustmentIndex, setAdjustmentIndex] = useState(0);
+	const { matrix: arcaneState, error } = useMemo(() => replayInstructions(sequence), [sequence]);
+	const detectedSpells = useMemo(
+		() => detectSpells(arcaneState, ellipsoidSpells, metaballSpells),
+		[arcaneState],
+	);
+	const adjustment = adjustments[adjustmentIndex];
 	const [axisSelection, setAxisSelection] = useState<AxisSelection>({
 		x: 0,
 		y: 1,
@@ -27,87 +28,13 @@ function App() {
 		axisSelection.y,
 	);
 
-	const reset = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(new Matrix(2, 2));
-		setDetectedSpells([]);
-	};
-
-	const checkSpell = () => {
-		setDetectedSpells(
-			detectSpells(arcaneState, ellipsoidSpells, metaballSpells),
-		);
-	};
-	// add 2 to each element of the matrix
-	const transform1 = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().add(2));
-	};
-	const transform2 = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().mul(2));
-	};
-	// subtract 2 from the first element of each column
-	const transform3 = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().addColumnVector([-2, 0]));
-	};
-	const transform4 = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().mulRowVector([0.5, 1.2]));
-	};
-	const transform5 = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().transpose());
-	};
-	const transform6 = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().swapRows(0, 1));
-	};
-	const transform7 = () => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(inverse(arcaneState));
-	};
-	const adjustmentMatricies = [
-		new Matrix([
-			[1, 0],
-			[0, 1],
-		]),
-		new Matrix([
-			[3, 1],
-			[1, 0],
-		]),
-		new Matrix([
-			[-1, -1],
-			[-1, -1],
-		]),
-		new Matrix([
-			[0, 1],
-			[-1, 0],
-		]),
-	];
-	const [adjustmentMatrix, setAdjustmentMatrix] = useState(
-		adjustmentMatricies[0],
-	);
-	const transform8 = (matrixToAdd: Matrix) => {
-		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().add(matrixToAdd));
-	};
-
-	const checkMatrixDeterminant = () => {
-		const det = determinant(arcaneState);
-		if (Math.abs(det) < 1e-10) {
-			return false;
-		}
-		return true;
-	};
+	const appendInstruction = (code: string) => setSequence((current) => current + code);
 
 	return (
 		<>
 			<p>
-				Click a matrix entry to select an axis. New selections alternate
-				between horizontal (red) and vertical (blue); click a selected
-				entry to swap axes.
+				Click a matrix entry to select an axis. New selections alternate between horizontal
+				(red) and vertical (blue); click a selected entry to swap axes.
 				{axes && ` Next new selection: ${axisSelection.next}.`}
 			</p>
 			<table className="matrix-table">
@@ -133,8 +60,7 @@ function App() {
 											onClick={() =>
 												setAxisSelection((current) =>
 													selectAxis(
-														arcaneState.rows *
-															arcaneState.columns,
+														arcaneState.rows * arcaneState.columns,
 														current,
 														index,
 													),
@@ -160,53 +86,94 @@ function App() {
 					.map((val) => val.toFixed(2))
 					.join(", ")}
 			</p>
-			<p>
-				Detected Spell:{" "}
-				{detectedSpells.length ? detectedSpells.join(", ") : "None"}
-			</p>
+			<p>Detected Spell: {detectedSpells.length ? detectedSpells.join(", ") : "None"}</p>
 
-			<button onClick={reset}>Reset</button>
+			<label htmlFor="instructions">Transformation string</label>
+			<input
+				id="instructions"
+				value={sequence}
+				onChange={(event) => setSequence(event.target.value)}
+				aria-invalid={error !== null}
+				aria-describedby={error ? "instruction-error" : undefined}
+				spellCheck={false}
+				autoComplete="off"
+			/>
+			{error && (
+				<p id="instruction-error" role="alert">
+					{error.message} at position {error.position}: {JSON.stringify(error.character)}.
+					The matrix shows the valid prefix.
+				</p>
+			)}
+			<button onClick={() => setSequence("")}>Reset</button>
 			<div className="transformation-controls">
 				<div className="transformation-grid">
-					<button onClick={transform1}>Add 2</button>
-					<button onClick={transform2}>Multiply by 2</button>
-					<button onClick={transform3}>
-						Subtract 2 from first element of each column
+					<button
+						disabled={!!error}
+						onClick={() => appendInstruction(transformations.add.code)}
+					>
+						{transformations.add.label} ({transformations.add.code})
 					</button>
-					<button onClick={() => transform8(adjustmentMatrix)}>
-						Add Adjustment Matrix
+					<button
+						disabled={!!error}
+						onClick={() => appendInstruction(transformations.multiply.code)}
+					>
+						{transformations.multiply.label} ({transformations.multiply.code})
+					</button>
+					<button
+						disabled={!!error}
+						onClick={() => appendInstruction(transformations.subtract.code)}
+					>
+						{transformations.subtract.label} ({transformations.subtract.code})
+					</button>
+					<button disabled={!!error} onClick={() => appendInstruction(adjustment.code)}>
+						Add Adjustment Matrix ({adjustment.code})
 					</button>
 					<select
 						aria-label="Adjustment matrix"
+						value={adjustmentIndex}
 						onChange={(e) => {
 							const index = parseInt(e.target.value, 10);
-							if (!isNaN(index)) {
-								setAdjustmentMatrix(adjustmentMatricies[index]);
+							if (!Number.isInteger(index) || !adjustments[index]) {
+								throw new RangeError("Invalid adjustment matrix selection");
 							}
+							setAdjustmentIndex(index);
 						}}
 					>
-						{adjustmentMatricies.map((matrix, index) => (
+						{adjustments.map((item, index) => (
 							<option key={index} value={index}>
-								Adjustment Matrix {index + 1}
+								{item.label} ({item.code})
 							</option>
 						))}
 					</select>
-					<button onClick={transform4}>
-						Multiply first row by 0.5 and second row by 1.2
-					</button>
-					<button onClick={transform5}>Transpose</button>
-					<button onClick={transform6}>Swap Rows</button>
 					<button
-						disabled={!checkMatrixDeterminant()}
-						onClick={transform7}
+						disabled={!!error}
+						onClick={() => appendInstruction(transformations.scaleRows.code)}
 					>
-						Inverse
+						{transformations.scaleRows.label} ({transformations.scaleRows.code})
+					</button>
+					<button
+						disabled={!!error}
+						onClick={() => appendInstruction(transformations.transpose.code)}
+					>
+						{transformations.transpose.label} ({transformations.transpose.code})
+					</button>
+					<button
+						disabled={!!error}
+						onClick={() => appendInstruction(transformations.swapRows.code)}
+					>
+						{transformations.swapRows.label} ({transformations.swapRows.code})
+					</button>
+					<button
+						disabled={!!error || !canInvert(arcaneState)}
+						onClick={() => appendInstruction(transformations.inverse.code)}
+					>
+						{transformations.inverse.label} ({transformations.inverse.code})
 					</button>
 				</div>
 				<table className="adjustment-preview">
 					<caption>Selected adjustment matrix</caption>
 					<tbody>
-						{adjustmentMatrix.to2DArray().map((row, i) => (
+						{adjustment.matrix.to2DArray().map((row, i) => (
 							<tr key={i}>
 								{row.map((value, j) => (
 									<td key={j}>{value.toFixed(2)}</td>
@@ -216,16 +183,6 @@ function App() {
 					</tbody>
 				</table>
 			</div>
-			<button
-				disabled={previousState.length === 0}
-				onClick={() => {
-					setArcaneState(previousState[previousState.length - 1]);
-					setPreviousState((prev) => prev.slice(0, prev.length - 1));
-				}}
-			>
-				Undo
-			</button>
-			<button onClick={checkSpell}>Check Spell</button>
 			<SliceVisualizer
 				matrix={arcaneState}
 				spells={metaballSpells}

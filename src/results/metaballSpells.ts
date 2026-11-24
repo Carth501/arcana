@@ -40,7 +40,7 @@ export const metaballSpells: MetaballSpell[] = [
 		],
 	},
 	{
-		name: "Quiet Spark",
+		name: "Quiet Spark", // afusH
 		threshold: 0.5,
 		color: "rgb(233, 237, 28)",
 		centers: [
