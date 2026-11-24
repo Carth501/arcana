@@ -25,7 +25,7 @@ test("samples a 13 by 13 window centered on the current fractional position", ()
 		[1.2, -0.3],
 		[7, 9],
 	]);
-	const samples = sampleSlice(matrix, 0, 1, []);
+	const samples = sampleSlice(matrix, 0, 1, [], []);
 	assert.equal(samples.length, 169);
 	assert.deepEqual(samples[0], { x: 1.2 - 3, y: -0.3 - 3, matches: [] });
 	assert.deepEqual(samples[84], { x: 1.2, y: -0.3, matches: [] });
@@ -66,7 +66,7 @@ test("holds unselected dimensions fixed and preserves overlapping spell identiti
 		],
 		"green",
 	);
-	const samples = sampleSlice(matrix, 0, 1, [first, second, otherPlane]);
+	const samples = sampleSlice(matrix, 0, 1, [first, second, otherPlane], []);
 	assert.deepEqual(samples[84].matches, [first, second]);
 	assert.deepEqual(samples[0].matches, []);
 	assert.deepEqual(matrix.to2DArray(), [
@@ -86,8 +86,45 @@ test("axis choices remain distinct and in bounds as dimensions change", () => {
 	assert.deepEqual(resolveAxes(2, 2, 3), [0, 1]);
 	assert.deepEqual(resolveAxes(4, 1, 1), [1, 0]);
 	assert.equal(resolveAxes(1, 0, 1), null);
-	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 0, []), RangeError);
-	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 2, []), RangeError);
+	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 0, [], []), RangeError);
+	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 2, [], []), RangeError);
+});
+
+test("samples all matching ellipsoids and metaballs, including overlapping colors", () => {
+	const matrix = new Matrix([
+		[0, 0],
+		[4, 0],
+	]);
+	const ellipsoid = {
+		name: "ellipsoid",
+		color: "red",
+		position: matrix.clone(),
+		scale: new Matrix([
+			[1, 1],
+			[1, 1],
+		]),
+	};
+	const second = { ...ellipsoid, name: "second ellipsoid", color: "green" };
+	const metaball = makeSpell(
+		"metaball",
+		[
+			[0, 0],
+			[4, 0],
+		],
+		"blue",
+	);
+	const samples = sampleSlice(matrix, 0, 1, [metaball], [ellipsoid, second]);
+	assert.deepEqual(samples[84].matches, [ellipsoid, second, metaball]);
+	assert.deepEqual(samples[86].matches, [ellipsoid, second]);
+	assert.deepEqual(samples[87].matches, []);
+	assert.equal(
+		blendColors(samples[84].matches.map((spell) => spell.color)),
+		"color-mix(in srgb, color-mix(in srgb, red 50%, green) 66.66666666666666%, blue)",
+	);
+	assert.deepEqual(matrix.to2DArray(), [
+		[0, 0],
+		[4, 0],
+	]);
 });
 
 test("overlapping colors get equal weights", () => {
@@ -103,5 +140,5 @@ test("overlapping colors get equal weights", () => {
 test("invalid metaball definitions remain explicit errors", () => {
 	const invalid = makeSpell("invalid", [[0, 0]], "red");
 	invalid.centers[0].scale.set(0, 0, 0);
-	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 1, [invalid]), RangeError);
+	assert.throws(() => sampleSlice(new Matrix([[0, 0]]), 0, 1, [invalid], []), RangeError);
 });

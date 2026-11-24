@@ -1,18 +1,19 @@
 import { useId, useState } from "react";
 import type { Matrix } from "ml-matrix";
-import type { MetaballSpell } from "./Classification";
+import type { MetaballSpell, Spell } from "./Classification";
 import { blendColors, isProjectedOriginVisible, resolveAxes, sampleSlice } from "./sliceSampling";
 
 interface SliceVisualizerProps {
 	matrix: Matrix;
 	spells: MetaballSpell[];
+	ellipsoidSpells: Spell[];
 }
 
 const PLOT_START = 50;
 const PLOT_SIZE = 300;
 const UNITS_TO_PIXELS = PLOT_SIZE / 6;
 
-function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
+function SliceVisualizer({ matrix, spells, ellipsoidSpells }: SliceVisualizerProps) {
 	const [selectedX, setSelectedX] = useState(0);
 	const [selectedY, setSelectedY] = useState(1);
 	const clipId = useId();
@@ -21,7 +22,7 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 	if (axes === null) {
 		return (
 			<section className="slice-visualizer">
-				<h2>Metaball slice</h2>
+				<h2>Spell slice</h2>
 				<p>At least two matrix entries are needed to display a slice.</p>
 			</section>
 		);
@@ -32,14 +33,15 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 		`Row ${Math.floor(index / matrix.columns) + 1}, column ${(index % matrix.columns) + 1}`;
 	const currentX = matrix.get(Math.floor(xAxis / matrix.columns), xAxis % matrix.columns);
 	const currentY = matrix.get(Math.floor(yAxis / matrix.columns), yAxis % matrix.columns);
-	const invalidColors = spells.filter(
+	const allSpells = [...ellipsoidSpells, ...spells];
+	const invalidColors = allSpells.filter(
 		(spell) => !CSS.supports("color", `color-mix(in srgb, ${spell.color}, black)`),
 	);
 
 	if (invalidColors.length) {
 		return (
 			<section className="slice-visualizer">
-				<h2>Metaball slice</h2>
+				<h2>Spell slice</h2>
 				<p role="alert">
 					Invalid or unsupported spell colors:{" "}
 					{invalidColors.map((spell) => spell.name).join(", ")}.
@@ -48,7 +50,7 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 		);
 	}
 
-	const samples = sampleSlice(matrix, xAxis, yAxis, spells);
+	const samples = sampleSlice(matrix, xAxis, yAxis, spells, ellipsoidSpells);
 	const ticks = Array.from({ length: 7 }, (_, index) => index - 3);
 	const toX = (value: number) =>
 		PLOT_START + PLOT_SIZE / 2 + (value - currentX) * UNITS_TO_PIXELS;
@@ -58,7 +60,7 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 
 	return (
 		<section className="slice-visualizer" aria-labelledby={`${clipId}-title`}>
-			<h2 id={`${clipId}-title`}>Metaball slice</h2>
+			<h2 id={`${clipId}-title`}>Spell slice</h2>
 			<div className="slice-controls">
 				<label>
 					Horizontal axis
@@ -95,7 +97,7 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 				className="slice-plot"
 				viewBox="0 0 400 400"
 				role="img"
-				aria-label={`Metaball slice: horizontal ${axisLabel(xAxis)}, vertical ${axisLabel(yAxis)}. White ring marks the current position; black cross marks the projected origin when visible.`}
+				aria-label={`Spell slice: horizontal ${axisLabel(xAxis)}, vertical ${axisLabel(yAxis)}. White ring marks the current position; black cross marks the projected origin when visible.`}
 			>
 				<defs>
 					<clipPath id={clipId}>
@@ -148,8 +150,8 @@ function SliceVisualizer({ matrix, spells }: SliceVisualizerProps) {
 				White ring: current position. Black cross: projected origin
 				{originVisible ? "" : " (outside this window)"}.
 			</p>
-			<ul className="slice-legend" aria-label="Metaball spell colors">
-				{spells.map((spell, index) => (
+			<ul className="slice-legend" aria-label="Spell colors">
+				{allSpells.map((spell, index) => (
 					<li key={index}>
 						<span
 							className="slice-swatch"

@@ -157,7 +157,11 @@ function App() {
 				Undo
 			</button>
 			<button onClick={checkSpell}>Check Spell</button>
-			<SliceVisualizer matrix={arcaneState} spells={metaballSpells} />
+			<SliceVisualizer
+				matrix={arcaneState}
+				spells={metaballSpells}
+				ellipsoidSpells={ellipsoidSpells}
+			/>
 		</>
 	);
 }

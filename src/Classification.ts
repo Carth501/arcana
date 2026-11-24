@@ -2,6 +2,7 @@ import { Matrix } from "ml-matrix";
 
 interface Spell {
 	name: string;
+	color: string;
 	position: Matrix;
 	scale: Matrix;
 }

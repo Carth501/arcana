@@ -1,5 +1,10 @@
 import type { Matrix } from "ml-matrix";
-import { detectMetaballSpells, type MetaballSpell } from "./Classification.ts";
+import {
+	detectMetaballSpells,
+	detectSpell,
+	type MetaballSpell,
+	type Spell,
+} from "./Classification.ts";
 
 const SLICE_RADIUS = 3;
 const SAMPLE_STEP = 0.5;
@@ -7,7 +12,7 @@ const SAMPLE_STEP = 0.5;
 interface SliceSample {
 	x: number;
 	y: number;
-	matches: MetaballSpell[];
+	matches: (Spell | MetaballSpell)[];
 }
 
 function resolveAxes(count: number, x: number, y: number): [number, number] | null {
@@ -23,6 +28,7 @@ function sampleSlice(
 	xAxis: number,
 	yAxis: number,
 	spells: MetaballSpell[],
+	ellipsoidSpells: Spell[],
 ): SliceSample[] {
 	const count = matrix.rows * matrix.columns;
 	if (
@@ -55,9 +61,12 @@ function sampleSlice(
 			const candidate = matrix.clone();
 			candidate.set(xRow, xColumn, xValue);
 			candidate.set(yRow, yColumn, yValue);
-			const matches = spells.filter(
-				(spell) => detectMetaballSpells(candidate, [spell]).length > 0,
-			);
+			const matches = [
+				...ellipsoidSpells.filter((spell) =>
+					detectSpell(candidate, spell.position, spell.scale),
+				),
+				...spells.filter((spell) => detectMetaballSpells(candidate, [spell]).length > 0),
+			];
 			samples.push({ x: xValue, y: yValue, matches });
 		}
 	}

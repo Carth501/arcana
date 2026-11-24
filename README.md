@@ -10,9 +10,9 @@ Each metaball center specifies position and scale matrices matching the state di
 
 Run the detection tests with `node --test tests/classification.test.mjs` (Node.js 24 or later).
 
-## Metaball slice visualizer
+## Spell slice visualizer
 
-Select two distinct matrix entries to view a two-axis slice centered on the current state; all other entries remain fixed. The plot samples a square from −3 to +3 on each axis at 0.5-unit intervals. Each cell shows the spell or equally blended spell colors at its sampled coordinate. Metaball spells must define a valid CSS color; ellipsoid spells are not shown.
+Select two distinct matrix entries to view a two-axis slice centered on the current state; all other entries remain fixed. The plot samples a square from −3 to +3 on each axis at 0.5-unit intervals. Each cell shows all matching ellipsoid and metaball spells, blending their colors equally where they overlap. Both types of spell must define a valid CSS color. Unlike Check Spell, the visualizer shows every matching region without applying ellipsoid priority.
 
 The white ring marks the current position. The black cross marks the selected axes' projected origin when visible; this is not necessarily the full matrix origin. This is a sampled approximation, so small regions between samples may be missed.
 

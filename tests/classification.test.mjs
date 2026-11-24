@@ -39,8 +39,8 @@ test("overlapping centers combine and all matching spells are returned in order"
 
 test("ellipsoid results take priority; fallback returns all matches or none", () => {
 	const ellipsoids = [
-		{ name: "first", position: point(0), scale: point(1, 1) },
-		{ name: "second", position: point(0), scale: point(1, 1) },
+		{ name: "first", color: "red", position: point(0), scale: point(1, 1) },
+		{ name: "second", color: "blue", position: point(0), scale: point(1, 1) },
 	];
 	const fallback = [{ name: "fallback", color: "red", centers: [center(0)], threshold: 0.5 }];
 	assert.deepEqual(detectSpells(point(0), ellipsoids, fallback), ["first"]);
