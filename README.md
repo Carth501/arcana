@@ -2,6 +2,14 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
+## Spell detection
+
+Spell definitions live in `src/results/ellipsoidSpells.ts` and `src/results/metaballSpells.ts`. The Check Spell button returns the first matching ellipsoid; only when none matches does it show all matching metaball spells.
+
+Each metaball center specifies position and scale matrices matching the state dimensions. Every scale entry must be positive and finite. For each center, the squared normalized distance is the sum of `((value - position) / scale)²` over every matrix element. Its contribution is `max(0, 1 - distance²)²`; contributions are summed and compared against the spell's positive threshold.
+
+Run the detection tests with `node --test tests/classification.test.mjs` (Node.js 24 or later).
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

@@ -1,0 +1,79 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { Matrix } from "ml-matrix";
+import { detectMetaballSpells, detectSpells } from "../src/Classification.ts";
+import { ellipsoidSpells } from "../src/results/ellipsoidSpells.ts";
+import { metaballSpells } from "../src/results/metaballSpells.ts";
+
+const matrix = (values) => new Matrix(values);
+const point = (x, y = 0) => matrix([[x, y]]);
+const center = (x, y = 0, xRadius = 1, yRadius = 1) => ({
+	position: point(x, y),
+	scale: point(xRadius, yRadius),
+});
+
+test("metaball falloff respects center, anisotropic radii, and boundary", () => {
+	const spells = [{ name: "bubble", centers: [center(0, 0, 2, 1)], threshold: 0.5625 }];
+	assert.deepEqual(detectMetaballSpells(point(0), spells), ["bubble"]);
+	assert.deepEqual(detectMetaballSpells(point(1), spells), ["bubble"]);
+	assert.deepEqual(detectMetaballSpells(point(0, 0.51), spells), []);
+	assert.deepEqual(detectMetaballSpells(point(2), spells), []);
+	assert.deepEqual(detectMetaballSpells(point(3), spells), []);
+});
+
+test("overlapping centers combine and all matching spells are returned in order", () => {
+	const spells = [
+		{ name: "bridge", centers: [center(-1, 0, 2), center(1, 0, 2)], threshold: 1.1 },
+		{ name: "second", centers: [center(0)], threshold: 1 },
+		{ name: "no match", centers: [center(4)], threshold: 0.5 },
+	];
+	assert.deepEqual(detectMetaballSpells(point(0), spells), ["bridge", "second"]);
+});
+
+test("ellipsoid results take priority; fallback returns all matches or none", () => {
+	const ellipsoids = [
+		{ name: "first", position: point(0), scale: point(1, 1) },
+		{ name: "second", position: point(0), scale: point(1, 1) },
+	];
+	const fallback = [{ name: "fallback", centers: [center(0)], threshold: 0.5 }];
+	assert.deepEqual(detectSpells(point(0), ellipsoids, fallback), ["first"]);
+	assert.deepEqual(detectSpells(point(0), ellipsoids, [{ ...fallback[0], threshold: 0 }]), [
+		"first",
+	]);
+	assert.deepEqual(detectSpells(point(0), [], fallback), ["fallback"]);
+	assert.deepEqual(detectSpells(point(3), ellipsoids, fallback), []);
+});
+
+test("example definitions yield overlapping fallback matches at the origin", () => {
+	assert.deepEqual(
+		detectSpells(
+			matrix([
+				[0, 0],
+				[0, 0],
+			]),
+			ellipsoidSpells,
+			metaballSpells,
+		),
+		["Arcane Bridge", "Quiet Spark"],
+	);
+});
+
+test("invalid metaball definitions and coordinates fail explicitly", () => {
+	const valid = { name: "test", centers: [center(0)], threshold: 0.5 };
+	assert.throws(() => detectMetaballSpells(point(0), [{ ...valid, threshold: 0 }]), RangeError);
+	assert.throws(
+		() => detectMetaballSpells(point(0), [{ ...valid, threshold: Infinity }]),
+		RangeError,
+	);
+	assert.throws(() => detectMetaballSpells(point(0), [{ ...valid, centers: [] }]), RangeError);
+	assert.throws(
+		() => detectMetaballSpells(point(0), [{ ...valid, centers: [center(0, 0, 0)] }]),
+		RangeError,
+	);
+	assert.throws(
+		() => detectMetaballSpells(point(0), [{ ...valid, centers: [center(Infinity)] }]),
+		RangeError,
+	);
+	assert.throws(() => detectMetaballSpells(point(NaN), [valid]), RangeError);
+	assert.throws(() => detectMetaballSpells(matrix([[0], [0]]), [valid]), RangeError);
+});

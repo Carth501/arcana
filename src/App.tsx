@@ -1,57 +1,23 @@
-import {
-	determinant,
-	EigenvalueDecomposition,
-	inverse,
-	Matrix,
-} from "ml-matrix";
+import { determinant, EigenvalueDecomposition, inverse, Matrix } from "ml-matrix";
 import { useState } from "react";
 import "./App.css";
-import { detectResult, type Spell } from "./Classification";
+import { detectSpells } from "./Classification";
+import { ellipsoidSpells } from "./results/ellipsoidSpells";
+import { metaballSpells } from "./results/metaballSpells";
 
 function App() {
-	const [arcaneState, setArcaneState] = useState(() => new Matrix(3, 3));
+	const [arcaneState, setArcaneState] = useState(() => new Matrix(2, 2));
 	const [previousState, setPreviousState] = useState<Matrix[]>([]);
-	const [detectedSpell, setDetectedSpell] = useState<string | null>(null);
-
-	// Define some test spells
-	const spells: Spell[] = [
-		{
-			name: "Fireball",
-			position: new Matrix([
-				[2, 2, 2],
-				[2, 2, 2],
-				[2, 2, 2],
-			]),
-			scale: new Matrix([
-				[0.5, 0.5, 0.5],
-				[0.5, 0.5, 0.5],
-				[0.5, 0.5, 0.5],
-			]),
-		},
-		{
-			name: "Frostbolt",
-			position: new Matrix([
-				[-1, 0, 0],
-				[0, -1, 0],
-				[0, 0, -1],
-			]),
-			scale: new Matrix([
-				[0.3, 0, 0],
-				[0, 0.3, 0],
-				[0, 0, 0.3],
-			]),
-		},
-	];
+	const [detectedSpells, setDetectedSpells] = useState<string[]>([]);
 
 	const reset = () => {
 		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(new Matrix(3, 3));
-		setDetectedSpell(null);
+		setArcaneState(new Matrix(2, 2));
+		setDetectedSpells([]);
 	};
 
 	const checkSpell = () => {
-		const result = detectResult(arcaneState, spells);
-		setDetectedSpell(result);
+		setDetectedSpells(detectSpells(arcaneState, ellipsoidSpells, metaballSpells));
 	};
 	// add 2 to each element of the matrix
 	const transform1 = () => {
@@ -65,11 +31,11 @@ function App() {
 	// subtract 2 from the first element of each column
 	const transform3 = () => {
 		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().addColumnVector([-2, 0, 0]));
+		setArcaneState(arcaneState.clone().addColumnVector([-2, 0]));
 	};
 	const transform4 = () => {
 		setPreviousState((prev) => [...prev, arcaneState]);
-		setArcaneState(arcaneState.clone().mulRowVector([0.5, 1.2, 1]));
+		setArcaneState(arcaneState.clone().mulRowVector([0.5, 1.2]));
 	};
 	const transform5 = () => {
 		setPreviousState((prev) => [...prev, arcaneState]);
@@ -115,17 +81,13 @@ function App() {
 					.map((val) => val.toFixed(2))
 					.join(", ")}
 			</p>
-			<p>Detected Spell: {detectedSpell || "None"}</p>
+			<p>Detected Spell: {detectedSpells.length ? detectedSpells.join(", ") : "None"}</p>
 
 			<button onClick={reset}>Reset</button>
 			<button onClick={transform1}>Add 2</button>
 			<button onClick={transform2}>Multiply by 2</button>
-			<button onClick={transform3}>
-				Subtract 2 from first element of each column
-			</button>
-			<button onClick={transform4}>
-				Multiply first row by 0.5 and second row by 1.2
-			</button>
+			<button onClick={transform3}>Subtract 2 from first element of each column</button>
+			<button onClick={transform4}>Multiply first row by 0.5 and second row by 1.2</button>
 			<button onClick={transform5}>Transpose</button>
 			<button onClick={transform6}>Swap Rows</button>
 			<button disabled={!checkMatrixDeterminant()} onClick={transform7}>
