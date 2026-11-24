@@ -81,6 +81,10 @@ function App() {
 			[-1, -1],
 			[-1, -1],
 		]),
+		new Matrix([
+			[0, 1],
+			[-1, 0],
+		]),
 	];
 	const [adjustmentMatrix, setAdjustmentMatrix] = useState(
 		adjustmentMatricies[0],
@@ -162,41 +166,55 @@ function App() {
 			</p>
 
 			<button onClick={reset}>Reset</button>
-			<div className="transformation-grid">
-				<button onClick={transform1}>Add 2</button>
-				<button onClick={transform2}>Multiply by 2</button>
-				<button onClick={transform3}>
-					Subtract 2 from first element of each column
-				</button>
-				<button onClick={() => transform8(adjustmentMatrix)}>
-					Add Adjustment Matrix
-				</button>
-				<select
-					aria-label="Adjustment matrix"
-					onChange={(e) => {
-						const index = parseInt(e.target.value, 10);
-						if (!isNaN(index)) {
-							setAdjustmentMatrix(adjustmentMatricies[index]);
-						}
-					}}
-				>
-					{adjustmentMatricies.map((matrix, index) => (
-						<option key={index} value={index}>
-							Adjustment Matrix {index + 1}
-						</option>
-					))}
-				</select>
-				<button onClick={transform4}>
-					Multiply first row by 0.5 and second row by 1.2
-				</button>
-				<button onClick={transform5}>Transpose</button>
-				<button onClick={transform6}>Swap Rows</button>
-				<button
-					disabled={!checkMatrixDeterminant()}
-					onClick={transform7}
-				>
-					Inverse
-				</button>
+			<div className="transformation-controls">
+				<div className="transformation-grid">
+					<button onClick={transform1}>Add 2</button>
+					<button onClick={transform2}>Multiply by 2</button>
+					<button onClick={transform3}>
+						Subtract 2 from first element of each column
+					</button>
+					<button onClick={() => transform8(adjustmentMatrix)}>
+						Add Adjustment Matrix
+					</button>
+					<select
+						aria-label="Adjustment matrix"
+						onChange={(e) => {
+							const index = parseInt(e.target.value, 10);
+							if (!isNaN(index)) {
+								setAdjustmentMatrix(adjustmentMatricies[index]);
+							}
+						}}
+					>
+						{adjustmentMatricies.map((matrix, index) => (
+							<option key={index} value={index}>
+								Adjustment Matrix {index + 1}
+							</option>
+						))}
+					</select>
+					<button onClick={transform4}>
+						Multiply first row by 0.5 and second row by 1.2
+					</button>
+					<button onClick={transform5}>Transpose</button>
+					<button onClick={transform6}>Swap Rows</button>
+					<button
+						disabled={!checkMatrixDeterminant()}
+						onClick={transform7}
+					>
+						Inverse
+					</button>
+				</div>
+				<table className="adjustment-preview">
+					<caption>Selected adjustment matrix</caption>
+					<tbody>
+						{adjustmentMatrix.to2DArray().map((row, i) => (
+							<tr key={i}>
+								{row.map((value, j) => (
+									<td key={j}>{value.toFixed(2)}</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
 			</div>
 			<button
 				disabled={previousState.length === 0}

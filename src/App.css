@@ -232,6 +232,26 @@ td {
 	outline-offset: -3px;
 }
 
+.transformation-controls {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+}
+
+.adjustment-preview {
+	margin: 0 0.5rem;
+}
+
+@media (max-width: 600px) {
+	.transformation-controls {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.adjustment-preview {
+		justify-self: center;
+	}
+}
+
 .transformation-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
